@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import Expenses from "./components/Expenses/Expenses";
+import NewExpense from "./components/NewExpense/NewExpense";
+import { type } from "@testing-library/user-event/dist/type";
 
-function App() {
+const App = () => {
+  // Using state-
+  const [expenses, setExpenses] = useState([]);
+
+  // Getting from local storage
+  useEffect(() => {
+    const currentExpenses = JSON.parse(localStorage.getItem("expenses"));
+    if (currentExpenses) {
+      currentExpenses.forEach((exp) => {
+        exp.date = new Date(exp.date);
+      });
+      setExpenses(currentExpenses);
+    }
+  }, []);
+
+  // Child-to-parent communication (to add user input to the existing expenses array)
+  const addExpenseHandler = (expense) => {
+    // console.log(expense);
+    setExpenses((prevExpenses) => {
+      return [expense, ...prevExpenses];
+    });
+  };
+
+  // Storing in local storage
+  useEffect(() => {
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+  }, [expenses]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <NewExpense onAddExpense={addExpenseHandler} />
+      <Expenses items={expenses}></Expenses>
     </div>
   );
-}
+};
 
 export default App;
